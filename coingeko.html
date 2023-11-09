@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crypto Price Ticker</title>
+    <style>
+        #cryptoTicker {
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
+        .ticker-container {
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .cryptoPrice {
+            display: inline;
+            margin-right: 20px;
+            font-size: 18px;
+        }
+
+        .cryptoCard {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 2px 2px 5px #ccc;
+            width: 200px;
+        }
+
+        .cryptoCard img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            margin: 0 auto;
+        }
+
+        .cryptoCard h2 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        .cryptoCard p {
+            font-size: 20px;
+            color: #0066CC;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="cryptoTicker"></div>
+
+    <script>
+        // Function to fetch cryptocurrency prices from a public API.
+        async function fetchCryptoPrices() {
+            try {
+                const apiKey = 'CG-dJ9KFjdSfTNj5pzpZaHxvCib'
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,solana&vs_currencies=usd');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching crypto prices:', error);
+                return null; // Handle the error gracefully
+            }
+        }
+
+
+// Function to create and append a crypto price card.
+function createCryptoCard(cryptoName, price, logoUrl) {
+    const cryptoCard = document.createElement('div');
+    cryptoCard.className = 'cryptoCard';
+
+    const logoElement = document.createElement('img');
+    logoElement.src = logoUrl;
+    logoElement.alt = cryptoName;
+
+    const nameElement = document.createElement('h2');
+    nameElement.textContent = cryptoName;
+
+    const priceElement = document.createElement('p');
+    priceElement.textContent = `$${price.toFixed(2)}`;
+
+    cryptoCard.appendChild(logoElement);
+    cryptoCard.appendChild(nameElement);
+    cryptoCard.appendChild(priceElement);
+
+    return cryptoCard;
+}
+
+// Function to update the crypto price ticker.
+async function updateCryptoTicker() {
+    const cryptoTicker = document.getElementById('cryptoTicker');
+    cryptoTicker.innerHTML = ''; // Clear the ticker.
+
+    const cryptoData = await fetchCryptoPrices();
+
+    if (cryptoData) {
+        const cryptocurrencies = {
+            'Bitcoin': { id: 'bitcoin', logoUrl: 'bitcoin-logo.png' },
+            'Ethereum': { id: 'ethereum', logoUrl: 'ethereum-logo.png' },
+            'Ripple': { id: 'ripple', logoUrl: 'ripple-logo.png' },
+            'Solana': { id: 'solana', logoUrl: 'solana-logo.png' }
+        };
+
+        for (const cryptoName in cryptocurrencies) {
+            if (cryptocurrencies.hasOwnProperty(cryptoName)) {
+                const cryptoInfo = cryptocurrencies[cryptoName];
+                const price = cryptoData[cryptoInfo.id].usd;
+                const cryptoCard = createCryptoCard(cryptoName, price, cryptoInfo.logoUrl);
+                cryptoTicker.appendChild(cryptoCard);
+            }
+        }
+    }
+
+    setTimeout(updateCryptoTicker, 60000); // Update every 60 seconds.
+}
+
+        // Start the ticker when the page loads.
+        window.onload = updateCryptoTicker;
+    </script>
+</body>
+</html>
